@@ -1,0 +1,25 @@
+{
+    "name": "rangde",
+    "build": {
+        "dockerfile": "./Dockerfile", // TODO: Instead of Dockerfile, Image should be fetched directly
+        "context": "."
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "vadimcn.vscode-lldb",
+                "mutantdino.resourcemonitor",
+                "rust-lang.rust-analyzer",
+                "tamasfe.even-better-toml",
+                "serayuzgur.crates",
+                "mhutchie.git-graph",
+                "eamodio.gitlens"
+            ],
+            "settings": {
+                "files.watcherExclude": {
+                    "**/target/**": true
+                }
+            }
+        }
+    }
+}
