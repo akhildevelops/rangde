@@ -11,3 +11,8 @@ Cargo.lock
 
 # Housekeeping
 scrap/
+
+
+# Added by cargo
+
+/target
