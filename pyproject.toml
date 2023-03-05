@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "rangde"
+version = "0.1.0"
+description = ""
+authors = ["enforcer007 <akhilgodvsdemon@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.92.0"
+torch = "^1.13.1"
+torchvision = "^0.14.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.2"
+jupyter = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

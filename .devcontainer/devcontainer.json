@@ -1,0 +1,14 @@
+{
+    "name": "rangde",
+    "build": {
+        "context": ".",
+        "dockerfile": "./Dockerfile"
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils": {},
+        "ghcr.io/devcontainers/features/rust": {},
+        "ghcr.io/akhildevelops/devcontainer-features/pip:latest": {
+            "packages": "jupyter"
+        }
+    }
+}
