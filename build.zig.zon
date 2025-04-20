@@ -1,0 +1,25 @@
+.{
+    .name = .rangde,
+
+    .version = "0.0.0",
+
+    .fingerprint = 0xf952357597b49130, // Changing this has security and trust implications.
+
+    .minimum_zig_version = "0.14.0",
+
+    .dependencies = .{
+        .zigcoro = .{
+            .url = "git+https://github.com/rsepassi/zigcoro.git#107913062d5032aa4b0eb38049d81ea7ea3f88bc",
+            .hash = "zigcoro-0.0.0-_zKfQ6M_AQB_vVdJnIBtkjUvYldFsHT2XEJq8LRvfAn5",
+        },
+        .libxev = .{
+            .url = "git+https://github.com/mitchellh/libxev#94ed6af7b2aaaeab987fbf87fcee410063df715b",
+            .hash = "libxev-0.0.0-86vtc-zkEgB7uv1i0Sa6ytJETZQi_lHJrImu9mLb9moi",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
