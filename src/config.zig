@@ -1,6 +1,7 @@
 const std = @import("std");
 max_socket_queue: u16 = 4096,
 stack_size: u16 = 1024 * 32,
+read_buffer: u16 = 4 * 1024,
 
 const Self = @This();
 pub fn default() Self {

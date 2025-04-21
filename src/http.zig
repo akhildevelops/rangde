@@ -11,12 +11,12 @@ const Self = @This();
 
 fn _async_conn(self: *Self, connection: aio.TCP) !void {
     defer connection.close() catch unreachable;
-    var _buffer: [32]u8 = undefined;
-    const buffer: xev.ReadBuffer = .{ .slice = &_buffer };
-    std.log.info("Sleeping for 20secs", .{});
-    try aio.sleep(&self.executor, 20000);
+    // FIXME: This is inefficient everytime allocating the memory. Instead create a global buffer and pull in free subset buffer from there.
+    const _buffer = try self.allocator.alloc(u8, self.config.read_buffer);
+    defer self.allocator.free(_buffer);
+    const buffer: xev.ReadBuffer = .{ .slice = _buffer };
     const bytes_read = try connection.read(buffer);
-    std.log.info("bytes_read: {d} and the bytes are {s}\n", .{ bytes_read, _buffer });
+    std.log.info("bytes_read: {d} and the bytes are {s}\n", .{ bytes_read, _buffer[0..bytes_read] });
 }
 
 fn _async_run(self: *Self, host: []const u8, port: u16) !void {
@@ -41,6 +41,8 @@ fn _async_run(self: *Self, host: []const u8, port: u16) !void {
     // Wrap server with aio to suspend and resume.
     const async_server = aio.TCP.init(&self.executor, server);
     defer async_server.close() catch unreachable;
+
+    // const read_buffer = try self.allocator.alloc(u8, self.config.max_socket_queue * self.config.read_buffer);
 
     // Loop  for serving all client requests upto max queue
     while (connections.count() < self.config.max_socket_queue) {
