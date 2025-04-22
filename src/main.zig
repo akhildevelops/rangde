@@ -5,14 +5,15 @@ const aio = coro.asyncio;
 const http = rangde.http;
 const std = @import("std");
 const Config = rangde.config;
+
 pub fn main() !void {
     const config = Config.default();
     std.log.info("{}", .{config});
     std.log.info("{s}", .{"Initializing the application"});
     std.log.info("{s}", .{"initializing the loop"});
-
+    var thread_pool = xev.ThreadPool.init(.{});
     // Event loop that provides utility methods for network interaction in async way.
-    var loop = try xev.Loop.init(.{});
+    var loop = try xev.Loop.init(.{ .thread_pool = &thread_pool });
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
     std.log.info("{s}", .{"Initializing the executor"});

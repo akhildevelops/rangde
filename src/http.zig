@@ -3,6 +3,7 @@ const xev = @import("xev");
 const libcoro = @import("coro");
 const aio = @import("coro").asyncio;
 const Config = @import("./lib.zig").config;
+
 /// Run the http server binding to a host and port
 executor: aio.Executor,
 config: Config,
@@ -16,7 +17,9 @@ fn _async_conn(self: *Self, connection: aio.TCP) !void {
     defer self.allocator.free(_buffer);
     const buffer: xev.ReadBuffer = .{ .slice = _buffer };
     const bytes_read = try connection.read(buffer);
-    std.log.info("bytes_read: {d} and the bytes are {s}\n", .{ bytes_read, _buffer[0..bytes_read] });
+    var request = try Request.parse(_buffer[0..bytes_read], self.allocator);
+    defer request.deinit();
+    std.log.info("Received request is {}", .{request});
 }
 
 fn _async_run(self: *Self, host: []const u8, port: u16) !void {
@@ -73,3 +76,112 @@ pub fn run(self: *Self, host: []const u8, port: u16) !void {
     // Eventloop will exit only when _async_run successfully finishes otherwise keeps on looping.
     try aio.run(&self.executor, _async_run, .{ self, host, port }, stack);
 }
+
+const RequestType = enum { get, post };
+const Headers = struct {
+    inner: std.StringHashMap([]const u8),
+    owned: bool,
+    allocator: std.mem.Allocator,
+    fn deinit(self: *@This()) void {
+        if (!self.owned) {
+            return {};
+        }
+        var headers_iter = self.inner.iterator();
+        while (headers_iter.next()) |kv| {
+            self.allocator.free(kv.key_ptr.*);
+            self.allocator.free(kv.value_ptr.*);
+        }
+    }
+    fn format(self: @This(), _: []const u8, _: std.fmt.FormatOptions, writer: anytype) void {
+        writer.print("Headers(", .{});
+        var kv_iter = self.inner.iterator();
+        while (kv_iter.next()) |kv| {
+            writer.print("{s}={s},", .{ kv.key_ptr.*, kv.value_ptr.* });
+        }
+        writer.print(")", .{});
+    }
+};
+
+inline fn log_buffer(buffer: []const u8) void {
+    std.log.debug("The received buffer is {s}", .{buffer});
+}
+
+inline fn parse_request_type(request_type: []const u8) !RequestType {
+    if (std.mem.eql(u8, request_type, "GET")) {
+        return RequestType.get;
+    }
+    if (std.mem.eql(u8, request_type, "POST")) {
+        return RequestType.post;
+    }
+    std.log.err("Received request type is not one of GET/POST. Received {s}", .{request_type});
+    return error.Request;
+}
+
+const Request = struct {
+    owned: bool,
+    route: []const u8,
+    request_type: RequestType,
+    headers: Headers,
+    allocator: std.mem.Allocator,
+
+    fn format(self: @This(), _: []const u8, _: std.fmt.FormatOptions, writer: anytype) void {
+        writer.print("Request(owned={s}, route={s}, request_type={s}, headers={})", .{ self.owned, self.route, @tagName(self.request_type), self.headers });
+    }
+
+    fn deinit(self: *@This()) void {
+        if (!self.owned) {
+            return {};
+        }
+        self.allocator.free(self.route);
+        self.headers.deinit();
+    }
+    // FIXME: treating buffer contains all the required header details request
+    fn parse(buffer: []const u8, allocator: std.mem.Allocator) !Request {
+        var splits = std.mem.splitSequence(u8, buffer, "\r\n");
+        const first_line = splits.next() orelse {
+            std.log.err("Cannot find the first line in the received Request\n", .{});
+            log_buffer(buffer);
+            return error.Request;
+        };
+        var first_line_iterator = std.mem.splitScalar(u8, first_line, ' ');
+        const request_type_str = first_line_iterator.next() orelse {
+            std.log.err("Cannot find the Request type in the received Request\n", .{});
+            log_buffer(buffer);
+            return error.Request;
+        };
+        const request_type = try parse_request_type(request_type_str);
+        const route = first_line_iterator.next() orelse {
+            std.log.err("Cannot find the route\n", .{});
+            log_buffer(buffer);
+            return error.Request;
+        };
+        const owned_route = try allocator.dupe(u8, route);
+        // Will be executed only if there's a failure in function.
+        errdefer allocator.free(owned_route);
+        var headers = Headers{ .allocator = allocator, .inner = std.StringHashMap([]const u8).init(allocator), .owned = true };
+        errdefer headers.deinit();
+        while (splits.next()) |each_line| {
+            if (std.mem.eql(u8, each_line, "")) {
+                break;
+            }
+            //FIXME: what if the header kv is of this sort "Sec-Fetch-Mode: navigate: to_north: and_south"
+            var each_line_iter = std.mem.splitSequence(u8, each_line, ": ");
+            const key = each_line_iter.next() orelse {
+                std.log.err("Cannot find the  header key in {s}", .{each_line});
+                return error.Request;
+            };
+            const owned_key = try allocator.dupe(u8, key);
+            errdefer allocator.free(owned_key);
+
+            const value = each_line_iter.next() orelse {
+                std.log.err("Cannot find the header value in {s}", .{each_line});
+                return error.Request;
+            };
+            const owned_value = try allocator.dupe(u8, value);
+            errdefer allocator.free(owned_value);
+
+            try headers.inner.put(owned_key, owned_value);
+        }
+        return .{ .owned = true, .route = owned_route, .headers = headers, .allocator = allocator, .request_type = request_type };
+    }
+};
