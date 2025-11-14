@@ -1,16 +1,26 @@
-Rytheon,Rythnarel,Rythmirath,Azeon,Pyreon,Aznarel,Azmirath,Pyrnarel,Pyrmirath
+Gaerath,Gaeroryn,Kynoryn,Gaerelor,Urithdin,Gaeralar,Ulmarmir,Kynnylor,Oronmir,Urithjoris,Quarnjoris,Xyrjoris,Quarnnylor,Gaeriral,Xyrdin,Nyssnylor,Xyrmir,Baljoris,Kynmir,Torjoris,Balelor,Urithalar,Nyssdin,Toralar,Oronjoris,Toriral,Nyssdin,Gaerdin,Urithnylor,Xyralar,Baldin,Quarndin,Urithoryn,Nyssiral,Tororyn,Baldin,Kynelor,Oronalar,Kynath,Ulmaroryn,Balalar,Tornylor,Oronath,Gaerdin,Orondin,Nyssoryn,Oroniral,Quarnath,Kyndin,Ulmardin,Nyssalar,Quarndin,Torelor,Quarnmir,Ulmarath,Nysselor,Tordin,Nyssmir,Oronoryn,Kyndin,Ulmariral,Nyssjoris,Orondin,Ulmarelor,Balmir,Ulmaralar,Torath,Urithdin,Xyriral,Kynjoris,Urithmir,Gaernylor,Baliral,Balath,Nyssath,Quarnalar,Gaerjoris,Urithath,Gaermir,Urithiral,Quarnelor,Kyniral,Urithelor,Ulmarjoris,Kynalar,Quarnoryn,Xyroryn,Balnylor,Baloryn,Xyrath,Oronelor,Oronnylor,Xyrdin,Xyrnylor,Xyrelor,Ulmarnylor,Ulmardin,Tordin,Tormir,Quarniral
 
-i > r
-m > i
-z > m,b
-A > z
-o > n
-P > y
-e > o,l
-r > a,e,n,m
+X > y
+l > m,a,o,d,i,j,e,n,v
+s > s,d,i,o,j,a,e,n,m
+G > a
+B > a
+m > a,i
+j > o
+K > y
+U > l,r
+h > d,i,o,j,a,e,n,m
+n > y,d,i,o,j,a,e,n,m
+d > i
+e > r,l
+u > v
+O > r
+y > n,l,v
+r > m,d,i,a,o,y,j,e,n,v
 t > h
-a > t,r
-n > a
-y > b
-h > e,n,m
-R > y
+a > r,v,l,t
+N > y
+T > o
+i > r,n,s,t
+o > r,n,v
+Q > u
